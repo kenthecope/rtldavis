@@ -4,10 +4,12 @@
 
 ### About this Repository
 
-This repository is a fork of [https://github.com/bemasher/rtldavis](https://github.com/bemasher/rtldavis) for use with custom receiver modules. It has been modified in numerous ways.
+This repository is a fork of a fork of [https://github.com/bemasher/rtldavis](https://github.com/bemasher/rtldavis) for use with custom receiver modules. It has been modified in numerous ways.
 1) Added EU frequencies
 2) Handling of more than one concurrent transmitters.
-3) Output format is changed for use with the weewx-rtldavis driver which does the data parsing. 
+3) Output format is changed for use with the weewx-rtldavis driver which does the data parsing.
+4) Changed EU frequencies (Vantage Pro 2).  Not 100% correct, hop count is still wrong, but about 50% of messages are recieved.
+5) Wrote a crappy python decoder that runs rtldavis, parses the weather output and writes the values to a MQTT server with auto discovery for Home Assistant.  A lot of stuff is hard coded in the script, so you'll have to edit it by hand -- config dict in the global varaiables section.  You'll need the paho MQTT module installed, and you'll need to change the python intepreter path in the first line of the script.
 
 
 ## Installation
@@ -119,6 +121,9 @@ Usage of rtldavis:
         received and how many.
         Default = -u false
 ```
+
+### Running the Python Script
+* Fix the path issues for the interpreter in the first line, edit the config dictionary with values for your MQTT server and simply run with decode.py.  It runs rtldavis as a subprocess.  I'd love to have extended the go script, but go is on my back burner for languages to learn, and I already know enough python -- so have fun with the ugly hack that this is.
 
 ### License
 
