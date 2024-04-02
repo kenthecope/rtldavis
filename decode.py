@@ -20,6 +20,7 @@ The lowest three bits in the low order nibble is the transmitter ID, set via dip
 
 # 8 bits of data
 """
+# Test data
 raw_packet="90004F0103054610"
 raw_packet="80014F1DAB0004B5"
 raw_packet="A0004FAF3B001398"
@@ -311,14 +312,14 @@ def process_data(raw_packet):
     # dict of the weather data
     weather = { }
 
+    # protocol breakdown from 
     # analyze byte 0 
     print (raw_packet)
-    print ("Byte 0", packet[0], hex(packet[0]), bin(packet[0]))
+    # print ("Byte 0", packet[0], hex(packet[0]), bin(packet[0]))
     # shift byte 0 right by 4 bitsi
     message_type = packet[0] >> 4
     print ("MESSAGE TYPE:", message_type)
     if message_type == 5:
-        print ("RAIN RATE")
         # Bytes 3 and 4 contain the rain rate information. The rate is actually the time in seconds between rain bucket tips in the ISS.
         # The rain rate is calculated from the bucket tip rate and the size of the bucket (0.01" of rain for units sold in North America)
         if packet[3] == 0xff:
@@ -350,14 +351,14 @@ def process_data(raw_packet):
         # intervals the gust occurred in. 
         gust = int(packet[3]) * 1.609344
         gust_idx = int(packet[5] >> 4)
-        print ("WIND GUST", gust, 'km/h', gust_idx)
         weather['wind_gust'] = round(gust, 1)
         weather['wind_gust_idx'] = gust_idx
+        print ("WIND GUST", gust, 'km/h', gust_idx)
     elif message_type == 10:
         #Humidity is represented as two bytes in Byte 3 and Byte 4 as a ten bit value.
         humidity = (((packet[4] >> 4) << 8) + packet[3]) / 10.0
-        print ("HUMIDITY", humidity, "%")
         weather['humidity'] = round(humidity, 1)
+        print ("HUMIDITY", humidity, "%")
     elif message_type == 14:
         print ("RAIN")
         # It is a running total of bucket tips that wraps back around to 0 eventually from the ISS.
@@ -394,8 +395,9 @@ def parse_packet(line):
     result = None
     if len(words) > 3:
         if len(words[1]) == 16:
-           print ("WRD:", words[1])
-           result = process_data(words[1])
+            result = process_data(words[1])
+        else:
+            print ("LINE:", line)
     if result:
         return result
 
@@ -478,11 +480,9 @@ def main():
                                 seconds_since_midnight += result['rain_counter']  - rain_counter_prev
                     result['rain_since_midnight'] = rain_since_midnight * 0.254   # 0.01 inch per bucket tip
                 weather_json = json.dumps(result)
-                print ("RESULT:", result, weather_json)
+                # print ("RESULT:", result, weather_json)
                 for subtopic, status in result.items():
-                    print ("SUBTOPIC:", subtopic, "STATUS:", status)
                     client.publish(f'rtldavis/sensor/{subtopic}/state', json.dumps(status), qos=2, retain=True)
-                #client.publish('rtldavis', weather_json, qos=0, retain=True)
 
 if __name__ == '__main__':
     print ("RTLDavis to MQTT Gateway")
