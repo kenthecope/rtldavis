@@ -35,8 +35,8 @@ import (
 	"math"
 	"math/rand"
 
-	"github.com/lheijst/rtldavis/crc"
-	"github.com/lheijst/rtldavis/dsp"
+	"github.com/kenthecope/rtldavis/crc"
+	"github.com/kenthecope/rtldavis/dsp"
 )
 
 var Verbose bool
@@ -53,7 +53,7 @@ func NewPacketConfig(symbolLength int) (cfg dsp.PacketConfig) {
 
 const maxTrCh = 10
 const maxTr   = 8
-const maxCh   = 51
+const maxCh   = 5  // EU version
 
 type Parser struct {
 	dsp.Demodulator
@@ -81,16 +81,19 @@ func NewParser(symbolLength int, tf string) (p Parser) {
 	p.maxTrChList = maxTrCh
 
 	if tf == "EU" {
-		p.channels = []int{ 
-			868077250, 868197250, 868317250, 868437250, 868557250, // EU test 20190324
+                const testchannel   = 868248000
+                const startchannel   = 868096000
+		p.channels = []int{   // EU, NZ have 51 freqs
+			// 868096000, 868122000 sideband
+			startchannel, testchannel, testchannel, testchannel, testchannel,
 		}
 		p.ChannelCount = len(p.channels)
 		p.hopIdx = rand.Intn(p.ChannelCount)
 		p.hopPattern = []int{
-			0, 2, 4, 1, 3,   
+			0, 1, 2, 3, 4, 
 		}
 		p.reverseHopPatrn = []int{
-			0, 3, 1, 4, 2,   
+			0, 1, 2, 3, 4, 
 		}
 	} else {
 		if tf == "NZ" {
@@ -110,14 +113,14 @@ func NewParser(symbolLength int, tf string) (p Parser) {
 			p.channels = []int{
 				// Thanks to Paul Anderson and Rich T for testing the US frequencies
 				902419338, 902921088, 903422839, 903924589, 904426340, 904928090, // US freq per 20190326
-				905429841, 905931591, 906433342, 906935092, 907436843, 907938593, 
-				908440344, 908942094, 909443845, 909945595, 910447346, 910949096, 
-				911450847, 911952597, 912454348, 912956099, 913457849, 913959599, 
-				914461350, 914963100, 915464850, 915966601, 916468351, 916970102, 
-				917471852, 917973603, 918475353, 918977104, 919478854, 919980605, 
-				920482355, 920984106, 921485856, 921987607, 922489357, 922991108, 
-				923492858, 923994609, 924496359, 924998110, 925499860, 926001611, 
-				926503361, 927005112, 927506862,  
+				905429841, 905931591, 906433342, 906935092, 907436843, 907938593,
+				908440344, 908942094, 909443845, 909945595, 910447346, 910949096,
+				911450847, 911952597, 912454348, 912956099, 913457849, 913959599,
+				914461350, 914963100, 915464850, 915966601, 916468351, 916970102,
+				917471852, 917973603, 918475353, 918977104, 919478854, 919980605,
+				920482355, 920984106, 921485856, 921987607, 922489357, 922991108,
+				923492858, 923994609, 924496359, 924998110, 925499860, 926001611,
+				926503361, 927005112, 927506862,
 			}
 		}
 		// Both NZ and US use the same hop sequence
@@ -129,9 +132,9 @@ func NewParser(symbolLength int, tf string) (p Parser) {
 			31, 50, 37, 12, 20, 33, 4, 43, 28, 15, 35, 6, 40, 11, 23, 46, 18,
 		}
 		p.reverseHopPatrn = []int{
-			0, 29, 20, 10, 40, 14, 45, 25, 4, 33, 17, 47, 37, 7, 23, 43, 13, 
-			30, 50, 1, 38, 19, 9, 48, 26, 3, 32, 15, 42, 11, 21, 34, 6, 39, 
-			27, 44, 8, 36, 16, 31, 46, 2, 22, 41, 12, 28, 49, 5, 24, 18, 35, 
+			0, 29, 20, 10, 40, 14, 45, 25, 4, 33, 17, 47, 37, 7, 23, 43, 13,
+			30, 50, 1, 38, 19, 9, 48, 26, 3, 32, 15, 42, 11, 21, 34, 6, 39,
+			27, 44, 8, 36, 16, 31, 46, 2, 22, 41, 12, 28, 49, 5, 24, 18, 35,
 		}
 	}
 	return

@@ -62,11 +62,11 @@ With the vendor and product ids for your particular dongle. This should make the
 #### Get the rtldavis package
 
     cd /home/pi
-    go get -v github.com/lheijst/rtldavis
+    go get -v github.com/kenthecope/rtldavis
 
 #### Compiling GO sources
 
-    cd $GOPATH/src/github.com/lheijst/rtldavis
+    cd $GOPATH/src/github.com/kenthecope/rtldavis
     git submodule init
     git submodule update
     go install -v .
